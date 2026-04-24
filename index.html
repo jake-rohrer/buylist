@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mythic Games Colorado — Littleton Buylist</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f4f1; --bg3: #eeecea;
+    --text: #1a1a18; --text2: #5f5e5a; --text3: #999890;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --blue-bg: #e6f1fb; --blue: #185fa5;
+    --green: #0f6e56; --green-bg: #e1f5ee;
+    --purple: #534ab7; --purple-bg: #eeedfe;
+    --red-c: #E24B4A; --amber: #BA7517;
+    --radius: 8px; --radius-lg: 12px;
+    --mono: 'Courier New', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --col: 16px 12px 1fr 68px 72px auto auto;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+      --text: #e8e6df; --text2: #a09e96; --text3: #666460;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      --blue-bg: #0c2a45; --blue: #85b7eb;
+      --green: #5dcaa5; --green-bg: #04342c;
+      --purple: #afa9ec; --purple-bg: #26215c;
+    }
+  }
+  body { font-family: var(--sans); background: var(--bg3); color: var(--text); min-height: 100vh; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 2rem 1rem; }
+  input, select, textarea, button { font-family: var(--sans); }
+  input[type=text], select, textarea { color: var(--text); background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 6px 8px; font-size: 13px; outline: none; }
+  input[type=text]:focus, select:focus, textarea:focus { border-color: var(--blue); }
+  button { cursor: pointer; color: var(--text); background: transparent; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 4px 10px; font-size: 12px; }
+  button:hover:not(:disabled) { background: var(--bg2); }
+  button:disabled { opacity: 0.45; cursor: default; }
+  h1 { font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }
+
+  /* stats */
+  .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1rem; }
+  .stat { background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; }
+  .stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .stat-val { font-size: 20px; font-weight: 500; line-height: 1.2; }
+  .stat-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .progress-bar { height: 3px; background: var(--bg2); border-radius: 2px; margin-bottom: 1.25rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s; }
+
+  /* controls */
+  .controls { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; align-items: center; }
+  .controls2 { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  .controls input[type=text] { flex: 1 1 160px; }
+  .fetch-btn { padding: 6px 14px; font-size: 12px; font-weight: 500; color: var(--purple); border-color: var(--purple); white-space: nowrap; }
+  .fetch-btn:hover:not(:disabled) { background: var(--purple-bg); }
+  .fetch-status { font-size: 11px; color: var(--text3); }
+  .fetch-status.err { color: var(--red-c); }
+  .fetch-status.ok { color: var(--green); }
+  .export-btn { padding: 6px 12px; font-size: 12px; font-weight: 500; color: var(--green); border-color: var(--green); white-space: nowrap; margin-left: auto; }
+  .export-btn:hover { background: var(--green-bg); }
+
+  /* filter groups */
+  .filter-group { display: flex; align-items: center; gap: 3px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 3px 6px; }
+  .filter-group-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 3px; white-space: nowrap; }
+  .fg-btn { height: 24px; min-width: 24px; padding: 0 5px; font-size: 10px; font-weight: 600; border-radius: 5px; transition: background 0.1s, color 0.1s, border-color 0.1s; white-space: nowrap; }
+  .fg-clear { width: 20px; height: 20px; padding: 0; font-size: 13px; line-height: 1; color: var(--text3); border: none; background: transparent; margin-left: 2px; }
+  .fg-clear:hover { color: var(--text); background: transparent; }
+
+  /* color dot */
+  .color-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.2); }
+
+  /* table */
+  .table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); }
+  .table-head { display: grid; grid-template-columns: var(--col); gap: 0 8px; padding: 5px 10px; background: var(--bg2); border-bottom: 0.5px solid var(--border); align-items: center; }
+  .th { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .th.right { text-align: right; }
+  .th.purple { color: var(--purple); }
+
+  /* group header */
+  .group-header { display: flex; align-items: center; gap: 8px; padding: 5px 10px; background: var(--bg2); border-bottom: 0.5px solid var(--border); border-top: 0.5px solid var(--border); cursor: pointer; user-select: none; }
+  .group-header:first-child { border-top: none; }
+  .group-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.2); }
+  .group-title { font-size: 11px; font-weight: 600; color: var(--text2); }
+  .group-meta { font-size: 11px; color: var(--text3); margin-left: 4px; }
+  .group-totals { font-size: 11px; color: var(--text3); margin-left: auto; font-family: var(--mono); display: flex; gap: 12px; }
+  .group-totals .sf { color: var(--purple); }
+  .group-chevron { font-size: 10px; color: var(--text3); margin-left: 6px; transition: transform 0.15s; }
+  .group-chevron.open { transform: rotate(90deg); }
+
+  /* rows */
+  .row { border-bottom: 0.5px solid var(--border); }
+  .row:last-child { border-bottom: none; }
+  .row-main { display: grid; grid-template-columns: var(--col); gap: 0 8px; padding: 7px 10px; align-items: center; transition: opacity 0.15s; }
+  .row-main.acquired { opacity: 0.38; }
+  .card-name-cell { min-width: 0; }
+  .card-name-line { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+  .card-name-text { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-name-text.struck { text-decoration: line-through; text-decoration-color: var(--text3); }
+  .qty-badge { flex-shrink: 0; display: inline-block; font-size: 10px; font-weight: 500; background: var(--blue-bg); color: var(--blue); padding: 1px 5px; border-radius: 4px; line-height: 15px; }
+  .type-tag { flex-shrink: 0; font-size: 9px; font-weight: 500; padding: 1px 4px; border-radius: 3px; background: var(--bg2); color: var(--text3); border: 0.5px solid var(--border); white-space: nowrap; }
+
+  /* mana pips */
+  .mana-cost { display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0; }
+  .pip { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; font-size: 8px; font-weight: 700; line-height: 1; border: 0.5px solid rgba(0,0,0,0.25); flex-shrink: 0; }
+  .pip-W { background: #f8f5e0; color: #5a4e00; }
+  .pip-U { background: #1a6fb5; color: #fff; }
+  .pip-B { background: #2a2228; color: #c9b8d8; }
+  .pip-R { background: #cc3300; color: #fff; }
+  .pip-G { background: #1a6b3a; color: #fff; }
+  .pip-C { background: #c8c0bc; color: #3a3632; }
+  .pip-X { background: #888480; color: #fff; }
+  .pip-num { background: #888480; color: #fff; }
+  .pip-split { background: linear-gradient(135deg,#1a6b3a 50%,#cc3300 50%); color: #fff; font-size: 7px; }
+  .pip-other { background: #aaa; color: #fff; }
+
+  .note-preview { font-size: 11px; font-style: italic; color: var(--text3); }
+  .note-preview.match { color: var(--blue); background: var(--blue-bg); padding: 0 3px; border-radius: 3px; }
+
+  /* price cells */
+  .sf-cell { text-align: right; }
+  .sf-val { font-size: 12px; font-family: var(--mono); color: var(--purple); white-space: nowrap; }
+  .sf-val.na { color: var(--text3); font-size: 11px; }
+  .sf-val.empty { color: var(--border2); }
+  .sf-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+  .price-cell { text-align: right; }
+  .price-display { cursor: text; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; min-height: 20px; }
+  .price-val { font-size: 12px; font-family: var(--mono); white-space: nowrap; }
+  .price-val.empty { color: var(--border2); }
+  .price-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+  .price-input { width: 100%; font-size: 12px; font-family: var(--mono) !important; padding: 2px 4px; text-align: right; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); }
+
+  .set-meta { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .set-code { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .note-btn { font-size: 10px; padding: 2px 6px; }
+  .note-btn.has-note { color: var(--blue); }
+  .note-btn.open-state { background: var(--bg2); }
+  .priority-btns { display: flex; gap: 3px; justify-content: flex-end; }
+  .pbtn { width: 22px; height: 22px; padding: 0; font-size: 9px; font-weight: 500; line-height: 1; transition: background 0.1s, color 0.1s; }
+  .remove-btn { width: 20px; height: 20px; padding: 0; font-size: 13px; line-height: 1; color: var(--text3); border: none; background: transparent; margin-left: 4px; flex-shrink: 0; transition: color 0.1s; }
+  .remove-btn:hover { color: var(--red-c); background: transparent; }
+  .remove-btn.armed { color: var(--red-c); font-weight: 700; font-size: 10px; width: auto; padding: 0 5px; border: 0.5px solid var(--red-c); border-radius: 4px; }
+  .graveyard-section { margin-top: 1.25rem; border: 0.5px solid #4a3a3a; border-radius: var(--radius-lg); overflow: hidden; }
+  .graveyard-header { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #2a1f1f; border-bottom: 0.5px solid #4a3a3a; }
+  .graveyard-title { font-size: 12px; font-weight: 600; color: #c9a090; letter-spacing: 0.04em; }
+  .graveyard-sub { font-size: 11px; color: #7a6060; margin-left: 4px; }
+  .graveyard-row { display: grid; grid-template-columns: 12px 1fr auto auto; gap: 0 10px; align-items: center; padding: 6px 12px; border-bottom: 0.5px solid #3a2a2a; background: #1e1616; }
+  .graveyard-row:last-child { border-bottom: none; }
+  .graveyard-name { font-size: 13px; color: #7a6060; text-decoration: line-through; text-decoration-color: #4a3a3a; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .graveyard-set { font-family: var(--mono); font-size: 11px; color: #5a4a4a; white-space: nowrap; }
+  .graveyard-restore { font-size: 11px; padding: 2px 8px; color: #c9a090; border-color: #4a3a3a; background: transparent; white-space: nowrap; }
+  .graveyard-restore:hover { background: #3a2525; color: #e8c0a8; border-color: #7a5050; }
+  .graveyard-btn { font-size: 12px; padding: 5px 10px; color: #7a5a5a; border-color: #4a3a3a; white-space: nowrap; }
+  .graveyard-btn:hover { background: #2a1f1f; color: #c9a090; border-color: #7a5050; }
+  .graveyard-btn.active { color: #c9a090; border-color: #7a5050; }
+  .notes-area { padding: 0 10px 8px 46px; }
+  .notes-area textarea { width: 100%; resize: vertical; font-size: 12px; }
+
+  /* footer */
+  .footer-totals { border-top: 0.5px solid var(--border2); background: var(--bg2); padding: 8px 10px; display: flex; flex-direction: column; gap: 0; }
+  .footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding: 6px 0; }
+  .footer-row + .footer-row { border-top: 0.5px solid var(--border); }
+  .footer-row-hi { background: rgba(83,74,183,0.06); border-radius: 4px; padding: 6px 8px !important; margin-bottom: 2px; }
+  .footer-left { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .footer-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); min-width: 60px; }
+  .footer-section.purple { color: var(--purple); }
+  .footer-kv { font-size: 12px; }
+  .footer-kv .lbl { color: var(--text3); margin-right: 3px; }
+  .footer-kv .val { font-weight: 500; font-family: var(--mono); }
+  .footer-kv .val.green { color: var(--green); }
+  .footer-kv .val.purple { color: var(--purple); }
+  .footer-right { display: flex; align-items: baseline; gap: 6px; }
+  .footer-total-lbl { font-size: 11px; color: var(--text3); }
+  .footer-total-val { font-size: 16px; font-weight: 500; font-family: var(--mono); }
+  .footer-total-val.purple { color: var(--purple); }
+
+  .meta { margin-top: 8px; font-size: 11px; color: var(--text3); text-align: right; }
+  .no-match { padding: 2rem; text-align: center; color: var(--text3); font-size: 13px; }
+
+  /* add card panel */
+  .add-panel-toggle { padding: 6px 12px; font-size: 12px; font-weight: 500; color: var(--blue); border-color: var(--blue); white-space: nowrap; }
+  .add-panel-toggle:hover { background: var(--blue-bg); }
+  .add-panel-toggle.open { background: var(--blue-bg); }
+  .add-panel { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1rem; overflow: hidden; }
+  .add-panel-tabs { display: flex; background: var(--bg2); border-bottom: 0.5px solid var(--border); }
+  .add-tab { flex: 1; padding: 9px 14px; font-size: 12px; font-weight: 500; border: none; border-radius: 0; background: transparent; color: var(--text3); border-bottom: 2px solid transparent; transition: color 0.1s; }
+  .add-tab.active { color: var(--text); border-bottom-color: var(--blue); }
+  .add-tab:hover:not(.active) { color: var(--text2); background: transparent; }
+  .add-panel-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .ac-wrap { position: relative; }
+  .ac-suggestions { position: absolute; top: calc(100% + 2px); left: 0; right: 0; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.14); z-index: 200; max-height: 220px; overflow-y: auto; }
+  .ac-item { padding: 7px 10px; font-size: 13px; cursor: pointer; border-bottom: 0.5px solid var(--border); }
+  .ac-item:last-child { border-bottom: none; }
+  .ac-item:hover, .ac-item.hi { background: var(--blue-bg); color: var(--blue); }
+  .printings-wrap { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; max-height: 220px; overflow-y: auto; }
+  .printing-row { display: grid; grid-template-columns: 42px 1fr auto auto auto; gap: 0 10px; align-items: center; padding: 6px 10px; cursor: pointer; border-bottom: 0.5px solid var(--border); transition: background 0.1s; }
+  .printing-row:last-child { border-bottom: none; }
+  .printing-row:hover { background: var(--bg2); }
+  .printing-row.sel { background: var(--blue-bg); }
+  .pr-set { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .pr-name { font-size: 12px; color: var(--text2); }
+  .pr-num { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .pr-date { font-size: 11px; color: var(--text3); }
+  .pr-price { font-size: 12px; font-family: var(--mono); color: var(--purple); }
+  .add-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .qty-input { width: 52px; text-align: center; }
+  .add-confirm-btn { padding: 6px 18px; font-size: 13px; font-weight: 500; color: #fff; background: var(--blue); border-color: var(--blue); border-radius: var(--radius); }
+  .add-confirm-btn:hover:not(:disabled) { background: #1450a0; }
+  .add-confirm-btn:disabled { opacity: 0.4; }
+  .add-status { font-size: 11px; }
+  .add-status.ok { color: var(--green); }
+  .add-status.err { color: var(--red-c); }
+  .bulk-textarea { width: 100%; height: 130px; resize: vertical; font-family: var(--mono) !important; font-size: 12px; }
+  .bulk-hint { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .custom-badge { flex-shrink: 0; font-size: 9px; font-weight: 600; padding: 1px 4px; border-radius: 3px; background: var(--blue-bg); color: var(--blue); border: 0.5px solid var(--blue); line-height: 14px; }
+
+  /* header bar */
+  .header-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; gap: 10px; }
+  .header-bar h1 { margin: 0; }
+  .sync-pill { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border2); background: var(--bg2); white-space: nowrap; cursor: default; }
+  .sync-pill.synced  { color: var(--green); border-color: var(--green); }
+  .sync-pill.saving  { color: var(--amber); border-color: var(--amber); }
+  .sync-pill.error   { color: var(--red-c); border-color: var(--red-c); cursor: pointer; }
+  .sync-pill.offline { color: var(--text3); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .sync-dot.pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* settings panel */
+  .settings-btn { width: 28px; height: 28px; padding: 0; font-size: 15px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: transparent; color: var(--text3); flex-shrink: 0; }
+  .settings-btn:hover { color: var(--text); background: var(--bg2); }
+  .settings-panel { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 12px; }
+  .settings-title { font-size: 12px; font-weight: 600; color: var(--text2); }
+  .settings-row { display: flex; flex-direction: column; gap: 4px; }
+  .settings-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+  .settings-input { font-family: var(--mono) !important; font-size: 12px; padding: 6px 8px; }
+  .settings-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .settings-btn-primary { padding: 6px 14px; font-size: 12px; font-weight: 500; color: #fff; background: var(--blue); border-color: var(--blue); }
+  .settings-btn-primary:hover:not(:disabled) { background: #1450a0; }
+  .settings-btn-primary:disabled { opacity: 0.45; }
+  .settings-hint { font-size: 11px; color: var(--text3); line-height: 1.5; }
+  .settings-hint a { color: var(--blue); }
+  .settings-status { font-size: 11px; }
+  .settings-status.ok  { color: var(--green); }
+  .settings-status.err { color: var(--red-c); }
+</style>
+</head>
+<body>
+<div class="wrap"><div id="root"></div></div>
+<script>
+const { useState, useEffect, useCallback, useRef } = React;
+
+const CARDS_RAW = `1 Tromokratis (CMM) 129
+1 Kiora, Sovereign of the Deep (MAT) 135
+1 Aspect of Hydra (BNG) 117
+1 Castle Garenbrig (PLST) ELD-240
+1 Coat of Arms (LCC) 108
+1 Omniscience (FDN) 161
+1 Prismatic Omen (WOT) 60
+1 Rosheen Meanderer (PLST) IMA-206
+1 Solidarity of Heroes (CM2) 144
+1 Unbound Flourishing (SOC) 126
+1 Zaxara, the Exemplary (DMC) 176
+2 Call the Spirit Dragons (TDM) 174
+1 Primordial Hydra (SOC) 284
+1 Three Visits (SOC) 289
+1 Skyshroud Claim (EOC) 107
+1 Karametra's Acolyte (THS) 160
+1 Circle of Dreams Druid (AFR) 176
+1 Nykthos, Shrine to Nyx (PLST) THS-223
+1 Ranger's Path (M13) 186
+1 Hunting Wilds (C18) 152
+1 Cultivate (SOC) 265
+1 Helga, Skittish Seer (BLB) 217
+1 Animar, Soul of Elements (2X2) 171
+1 Gyrus, Waker of Corpses (C18) 41
+1 Grakmaw, Skyclave Ravager (ZNR) 223
+1 Gorgon Flail (J25) 752
+1 Gorgon's Head (BNG) 158
+1 Basilisk Collar (FDN) 669
+1 Mathemagics (SOS) 320
+1 Platinum Angel (BRR) 104
+1 Quest for the Holy Relic (PLST) ZEN-33
+1 Urza's Mine (M3C) 401
+1 Urza's Tower (M3C) 403
+1 Urza's Power Plant (M3C) 402
+1 Elementalist's Palette (SOC) 346
+1 Jin-Gitaxias, Core Augur (MUL) 11
+1 Cryptolith Rite (INR) 189
+1 Magus Lucea Kane (40K) 174
+1 Mossborn Hydra (FDN) 107
+1 Fanatic of Rhonas (MH3) 152
+1 Nicol Bolas, Dragon-God (SLD) 1246
+1 Archetype of Imagination (C18) 81
+1 Arixmethes, Slumbering Isle (2XM) 189
+1 Atraxa, Praetors' Voice (2XM) 190
+1 Charix, the Raging Isle (ZNR) 49
+1 Hamza, Guardian of Arashin (MOC) 327
+1 Herald of Secret Streams (XLN) 59
+1 Hydroid Krasis (2X2) 506
+1 Kalonian Hydra (MOC) 305
+1 Kami of Whispered Hopes (MOM) 196
+1 Rosheen, Roaring Prophet (MH3) 494
+1 Runo Stromkirk // Krothuss, Lord of the Deep (VOW) 246
+1 Selvala, Heart of the Wilds (M3C) 246
+1 Somberwald Sage (INR) 418
+1 The Ur-Dragon (SLD) 11
+1 Tiamat (SLD) 1017
+1 Vorinclex, Monstrous Raider (KHM) 320
+2 Arcane Signet (FIC) 334
+1 Chromatic Lantern (M3C) 285
+1 Sol Ring (FIC) 357
+1 The Ozolith (IKO) 237
+1 Branching Evolution (LCC) 234
+1 Burgeoning (CN2) 178
+1 Doubling Season (RAV) 158
+1 Exploration (2XM) 167
+1 Utopia Sprawl (WOT) 63
+1 Wild Growth (ICE) 277
+1 Chandra's Ignition (ORI) 137
+1 Farseek (TDC) 255
+1 Fierce Guardianship (CMM) 94
+1 Heroic Intervention (LTC) 249
+1 Kodama's Reach (CMM) 649
+1 Nature's Lore (CLB) 244
+1 Rampant Growth (J25) 704
+2 Command Tower (LTC) 301`;
+
+function parseCards(raw) {
+  return raw.trim().split("\n").map((line, i) => {
+    const m = line.match(/^(\d+)\s+(.+?)\s+\((.+?)\)\s+(.+)$/);
+    if (!m) return null;
+    return { id: i, qty: parseInt(m[1]), name: m[2], set: m[3], num: m[4], acquired: false, priority: null, notes: "", price: "" };
+  }).filter(Boolean);
+}
+
+const INITIAL = parseCards(CARDS_RAW);
+const SKEY  = "mythic-buylist-local";
+const SFKEY = "mythic-buylist-scryfall";
+const MCKEY = "mythic-buylist-manacost";
+const CLKEY = "mythic-buylist-colors";
+const RMKEY = "mythic-buylist-removed";
+const CUSTOM_KEY = "mythic-buylist-custom";
+
+const P_COLORS = { 1:"#E24B4A", 2:"#BA7517", 3:"#185FA5", 4:"#0F6E56", 5:"#5F5E5A" };
+const P_NAMES  = { 1:"urgent", 2:"high", 3:"medium", 4:"low", 5:"someday" };
+
+// ── Category system ──────────────────────────────────────────────────────────
+const CAT = {
+  W:         { label:"White",      dot:"#f0ebb0", border:"#c8b840", text:"#5a4e00",  btnBg:"#f0ebb0", btnText:"#5a4e00" },
+  U:         { label:"Blue",       dot:"#1a6fb5", border:"#1a6fb5", text:"#fff",     btnBg:"#1a6fb5", btnText:"#fff" },
+  B:         { label:"Black",      dot:"#2a2228", border:"#6a5a7a", text:"#c9b8d8",  btnBg:"#2a2228", btnText:"#c9b8d8" },
+  R:         { label:"Red",        dot:"#cc3300", border:"#cc3300", text:"#fff",     btnBg:"#cc3300", btnText:"#fff" },
+  G:         { label:"Green",      dot:"#1a6b3a", border:"#1a6b3a", text:"#fff",     btnBg:"#1a6b3a", btnText:"#fff" },
+  multi:     { label:"Multicolor", dot:"#c8a000", border:"#c8a000", text:"#fff",     btnBg:"#c8a000", btnText:"#fff" },
+  artifact:  { label:"Artifact",   dot:"#b0aaa4", border:"#888",    text:"#3a3632",  btnBg:"#b0aaa4", btnText:"#3a3632" },
+  equipment: { label:"Equipment",  dot:"#a87840", border:"#a87840", text:"#fff",     btnBg:"#a87840", btnText:"#fff" },
+  land:      { label:"Land",       dot:"#8a7560", border:"#8a7560", text:"#fff",     btnBg:"#8a7560", btnText:"#fff" },
+  colorless: { label:"Colorless",  dot:"#888480", border:"#888480", text:"#fff",     btnBg:"#888480", btnText:"#fff" },
+};
+const CAT_ORDER = ["W","U","B","R","G","multi","colorless","artifact","equipment","land"];
+const COLOR_FILTERS = ["W","U","B","R","G","multi","artifact","equipment","land","colorless"];
+const COLOR_FILTER_LABELS = { W:"W", U:"U", B:"B", R:"R", G:"G", multi:"Multi", artifact:"Artifact", equipment:"Equip", land:"Land", colorless:"∅" };
+
+function getCategory(colorsArr, typeLine) {
+  if (!typeLine && (!colorsArr || colorsArr.length === 0)) return "colorless";
+  const tl = (typeLine || "").toLowerCase();
+  if (tl.includes("land")) return "land";
+  if (tl.includes("equipment")) return "equipment";
+  if (!colorsArr || colorsArr.length === 0) {
+    return tl.includes("artifact") ? "artifact" : "colorless";
+  }
+  if (colorsArr.length > 1) return "multi";
+  return colorsArr[0]; // W U B R G
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n === 0) return "$0.00";
+  return "$" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function loadLS(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } }
+function saveLS(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); } catch {} }
+function applyData(saved) { return INITIAL.map(c => saved[c.id] ? { ...c, ...saved[c.id] } : c); }
+
+// ── Mana pip rendering ───────────────────────────────────────────────────────
+function parseMana(str) {
+  if (!str) return [];
+  return (str.match(/\{[^}]+\}/g) || []).map(m => m.slice(1,-1));
+}
+function pipClass(sym) {
+  if (sym==="W") return "pip pip-W"; if (sym==="U") return "pip pip-U";
+  if (sym==="B") return "pip pip-B"; if (sym==="R") return "pip pip-R";
+  if (sym==="G") return "pip pip-G"; if (sym==="C") return "pip pip-C";
+  if (sym==="X") return "pip pip-X"; if (/^\d+$/.test(sym)) return "pip pip-num";
+  if (sym.includes("/")) return "pip pip-split";
+  return "pip pip-other";
+}
+function ManaCost({ cost }) {
+  if (!cost) return null;
+  const tokens = parseMana(cost);
+  if (!tokens.length) return null;
+  return React.createElement("span", { className:"mana-cost" },
+    ...tokens.map((sym,i) => React.createElement("span",{key:i,className:pipClass(sym),title:`{${sym}}`},sym.includes("/")?sym:sym))
+  );
+}
+
+// ── Scryfall fetch ───────────────────────────────────────────────────────────
+async function fetchScryfall(cards) {
+  const BATCH = 75;
+  const nameToId = {};
+  for (const c of cards) nameToId[c.name.split(" // ")[0].toLowerCase()] = c.id;
+
+  const priceById  = {};
+  const manaById   = {};
+  const colorsById = {}; // { id: { colors:[], typeLine:"" } }
+
+  for (let i = 0; i < cards.length; i += BATCH) {
+    const batch = cards.slice(i, i + BATCH);
+    const identifiers = batch.map(c => ({ name:c.name, set:c.set.toLowerCase(), collector_number:c.num }));
+    const resp = await fetch("https://api.scryfall.com/cards/collection", {
+      method: "POST", headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ identifiers }),
+    });
+    if (!resp.ok) throw new Error(`Scryfall HTTP ${resp.status}`);
+    const json = await resp.json();
+    for (const card of (json.data || [])) {
+      const key = card.name.split(" // ")[0].toLowerCase();
+      const id  = nameToId[key];
+      if (id !== undefined) {
+        priceById[id]  = card.prices?.usd ?? null;
+        manaById[id]   = card.mana_cost || card.card_faces?.[0]?.mana_cost || "";
+        colorsById[id] = {
+          colors:   card.colors   || card.card_faces?.[0]?.colors   || [],
+          typeLine: card.type_line|| card.card_faces?.[0]?.type_line || "",
+        };
+      }
+    }
+    for (const nf of (json.not_found || [])) {
+      const key = (nf.name||"").split(" // ")[0].toLowerCase();
+      const id  = nameToId[key];
+      if (id !== undefined) priceById[id] = "N/A";
+    }
+    if (i + BATCH < cards.length) await new Promise(r => setTimeout(r, 120));
+  }
+  return { priceById, manaById, colorsById };
+}
+
+// ── CSV export ───────────────────────────────────────────────────────────────
+function csvEscape(v) {
+  const s = String(v ?? "");
+  return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function exportCSV(list, sfPrices, manaCosts, cardColors) {
+  const headers = ["Qty","Card Name","Mana Cost","Colors","Type Line","Category","Set","Collector #","Priority","Scryfall Price","Scryfall Line Total","My Price","My Line Total","Acquired","Notes"];
+  const rows = list.map(c => {
+    const cl    = cardColors[c.id] || {};
+    const cat   = getCategory(cl.colors, cl.typeLine);
+    const sfRaw = sfPrices[c.id];
+    const sfNum = sfRaw && sfRaw !== "N/A" ? parseFloat(sfRaw) : "";
+    const myNum = c.price !== "" ? parseFloat(c.price) : "";
+    return [
+      c.qty, c.name, manaCosts[c.id]||"",
+      (cl.colors||[]).join(""), cl.typeLine||"",
+      cat ? (CAT[cat]?.label||cat) : "",
+      c.set, c.num,
+      c.priority ? `P${c.priority}` : "",
+      sfNum!==""?sfNum.toFixed(2):"", sfNum!==""?(sfNum*c.qty).toFixed(2):"",
+      myNum!==""?myNum.toFixed(2):"", myNum!==""?(myNum*c.qty).toFixed(2):"",
+      c.acquired?"Yes":"No", c.notes,
+    ].map(csvEscape).join(",");
+  });
+  const csv  = [headers.map(csvEscape).join(","), ...rows].join("\n");
+  const blob = new Blob([csv], { type:"text/csv" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = `mythic-buylist-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ── JSONBin sync ──────────────────────────────────────────────────────────────
+const JB_BASE = "https://api.jsonbin.io/v3";
+const SYNC_KEY = "mythic-buylist-sync-creds"; // { apiKey, binId }
+
+function loadCreds() { return loadLS(SYNC_KEY) || { apiKey:"", binId:"" }; }
+function saveCreds(c) { saveLS(SYNC_KEY, c); }
+
+async function jbRead(apiKey, binId) {
+  const r = await fetch(`${JB_BASE}/b/${binId}/latest`, {
+    headers: { "X-Master-Key": apiKey },
+  });
+  if (!r.ok) throw new Error(`JSONBin read failed: ${r.status}`);
+  const d = await r.json();
+  return d.record;
+}
+
+async function jbWrite(apiKey, binId, data) {
+  const r = await fetch(`${JB_BASE}/b/${binId}`, {
+    method: "PUT",
+    headers: { "Content-Type":"application/json", "X-Master-Key": apiKey },
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error(`JSONBin write failed: ${r.status}`);
+}
+
+async function jbCreate(apiKey) {
+  const r = await fetch(`${JB_BASE}/b`, {
+    method: "POST",
+    headers: { "Content-Type":"application/json", "X-Master-Key": apiKey, "X-Bin-Name":"mythic-buylist", "X-Private":"true" },
+    body: JSON.stringify({ _init: true }),
+  });
+  if (!r.ok) throw new Error(`JSONBin create failed: ${r.status}`);
+  const d = await r.json();
+  return d.metadata.id;
+}
+
+// ── SettingsPanel ─────────────────────────────────────────────────────────────
+function SettingsPanel({ onCredsChange }) {
+  const [creds,  setCreds]  = useState(loadCreds);
+  const [status, setStatus] = useState(null);
+  const [busy,   setBusy]   = useState(false);
+
+  const update = field => e => {
+    const next = { ...creds, [field]: e.target.value.trim() };
+    setCreds(next); saveCreds(next); onCredsChange(next);
+  };
+
+  const handleCreate = async () => {
+    if (!creds.apiKey) { setStatus({ err:true, msg:"Paste your API key first." }); return; }
+    setBusy(true); setStatus(null);
+    try {
+      const id = await jbCreate(creds.apiKey);
+      const next = { ...creds, binId: id };
+      setCreds(next); saveCreds(next); onCredsChange(next);
+      setStatus({ ok:true, msg:`✓ Bin created! ID: ${id} — your data will now sync automatically.` });
+    } catch(e) { setStatus({ err:true, msg:e.message }); }
+    setBusy(false);
+  };
+
+  const handleTest = async () => {
+    if (!creds.apiKey || !creds.binId) { setStatus({ err:true, msg:"Fill in both fields first." }); return; }
+    setBusy(true); setStatus(null);
+    try {
+      await jbRead(creds.apiKey, creds.binId);
+      setStatus({ ok:true, msg:"✓ Connection successful — sync is active." });
+    } catch(e) { setStatus({ err:true, msg:e.message }); }
+    setBusy(false);
+  };
+
+  return React.createElement("div", { className:"settings-panel" },
+    React.createElement("div", { className:"settings-title" }, "☁  Cloud Sync — JSONBin.io"),
+    React.createElement("div", { className:"settings-hint" },
+      "1. Sign up free at ",
+      React.createElement("a", { href:"https://jsonbin.io", target:"_blank" }, "jsonbin.io"),
+      " → go to API Keys → copy your Master Key.",
+      React.createElement("br"),
+      "2. Paste it below, then click \"Create bin\" — your data syncs automatically from that point on.",
+      React.createElement("br"),
+      "3. On any other device, paste the same key + Bin ID, then click \"Test connection\".",
+    ),
+    React.createElement("div", { className:"settings-row" },
+      React.createElement("label", { className:"settings-label" }, "Master API Key"),
+      React.createElement("input", { type:"password", className:"settings-input", value:creds.apiKey, onChange:update("apiKey"), placeholder:"$2b$10$..." }),
+    ),
+    React.createElement("div", { className:"settings-row" },
+      React.createElement("label", { className:"settings-label" }, "Bin ID (auto-filled after create)"),
+      React.createElement("input", { type:"text", className:"settings-input", value:creds.binId, onChange:update("binId"), placeholder:"64f3a..." }),
+    ),
+    React.createElement("div", { className:"settings-actions" },
+      React.createElement("button", { className:"settings-btn-primary", onClick:handleCreate, disabled:busy||!creds.apiKey||!!creds.binId }, busy?"working…":"Create bin"),
+      React.createElement("button", { onClick:handleTest, disabled:busy||!creds.apiKey||!creds.binId, style:{fontSize:12,padding:"6px 12px"} }, "Test connection"),
+      status && React.createElement("span", { className:`settings-status${status.ok?" ok":" err"}` }, status.msg),
+    ),
+  );
+}
+
+// ── AddPanel ──────────────────────────────────────────────────────────────────
+function AddPanel({ onAdd, onStoreMeta }) {
+  const [tab, setTab] = useState("search");
+
+  // ── Search tab ─────────────────────────────────────────────
+  const [query,           setQuery]           = useState("");
+  const [suggestions,     setSuggestions]     = useState([]);
+  const [showSugg,        setShowSugg]        = useState(false);
+  const [loadingSugg,     setLoadingSugg]     = useState(false);
+  const [hiIdx,           setHiIdx]           = useState(-1);
+  const [selectedName,    setSelectedName]    = useState(null);
+  const [printings,       setPrintings]       = useState([]);
+  const [selectedPrint,   setSelectedPrint]   = useState(null);
+  const [loadingPrint,    setLoadingPrint]    = useState(false);
+  const [qty,             setQty]             = useState(1);
+  const [addStatus,       setAddStatus]       = useState(null);
+  const debRef  = useRef(null);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    const fn = e => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShowSugg(false); };
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
+  }, []);
+
+  const handleQuery = e => {
+    const v = e.target.value;
+    setQuery(v); setSelectedName(null); setSelectedPrint(null); setPrintings([]); setHiIdx(-1);
+    clearTimeout(debRef.current);
+    if (v.length < 2) { setSuggestions([]); setShowSugg(false); return; }
+    debRef.current = setTimeout(async () => {
+      setLoadingSugg(true);
+      try {
+        const r = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(v)}`);
+        const d = await r.json();
+        setSuggestions((d.data||[]).slice(0,12));
+        setShowSugg(true);
+      } catch {}
+      setLoadingSugg(false);
+    }, 280);
+  };
+
+  const selectName = async name => {
+    setQuery(name); setSelectedName(name); setShowSugg(false); setSuggestions([]);
+    setLoadingPrint(true); setPrintings([]); setSelectedPrint(null);
+    try {
+      const r = await fetch(`https://api.scryfall.com/cards/search?q=!"${encodeURIComponent(name)}"&unique=prints&order=released&dir=desc`);
+      const d = await r.json();
+      const prints = d.data || [];
+      setPrintings(prints);
+      if (prints.length) setSelectedPrint(prints[0]);
+    } catch {}
+    setLoadingPrint(false);
+  };
+
+  const handleKeyDown = e => {
+    if (!showSugg || !suggestions.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setHiIdx(i => Math.min(i+1, suggestions.length-1)); }
+    if (e.key === "ArrowUp")   { e.preventDefault(); setHiIdx(i => Math.max(i-1, 0)); }
+    if (e.key === "Enter" && hiIdx >= 0) { e.preventDefault(); selectName(suggestions[hiIdx]); }
+    if (e.key === "Escape") setShowSugg(false);
+  };
+
+  const handleAdd = () => {
+    if (!selectedPrint) return;
+    const id = `c_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+    const card = {
+      id, qty: Math.max(1, parseInt(qty)||1),
+      name: selectedPrint.name,
+      set: (selectedPrint.set||"").toUpperCase(),
+      num: selectedPrint.collector_number||"",
+      acquired:false, priority:null, notes:"", price:"", custom:true,
+    };
+    onStoreMeta(id, {
+      price:  selectedPrint.prices?.usd ?? null,
+      mana:   selectedPrint.mana_cost || selectedPrint.card_faces?.[0]?.mana_cost || "",
+      colors: { colors: selectedPrint.colors || selectedPrint.card_faces?.[0]?.colors || [], typeLine: selectedPrint.type_line || selectedPrint.card_faces?.[0]?.type_line || "" },
+    });
+    onAdd([card]);
+    setAddStatus({ ok:true, msg:`✓ Added ${card.name} (${card.set} ${card.num})` });
+    setQuery(""); setSelectedName(null); setSelectedPrint(null); setPrintings([]); setQty(1);
+    setTimeout(() => setAddStatus(null), 4000);
+  };
+
+  // ── Bulk tab ───────────────────────────────────────────────
+  const [bulkText,    setBulkText]    = useState("");
+  const [bulkStatus,  setBulkStatus]  = useState(null);
+  const [loadingBulk, setLoadingBulk] = useState(false);
+
+  const parseLine = line => {
+    const m1 = line.trim().match(/^(\d+)[x×]?\s+(.+?)\s+\((.+?)\)\s+(.+)$/);
+    if (m1) return { qty:parseInt(m1[1]), name:m1[2], set:m1[3].toUpperCase(), num:m1[4] };
+    const m2 = line.trim().match(/^(\d+)[x×]?\s+(.+)$/);
+    if (m2) return { qty:parseInt(m2[1]), name:m2[2], set:null, num:null };
+    return null;
+  };
+
+  const handleBulkAdd = async () => {
+    const lines = bulkText.trim().split("\n").filter(l => l.trim());
+    const parsed = lines.map(parseLine).filter(Boolean);
+    if (!parsed.length) { setBulkStatus({ err:true, msg:"No valid lines found — use '1 Card Name (SET) NUM' or '1 Card Name'." }); return; }
+    setLoadingBulk(true);
+    setBulkStatus({ msg:`Looking up ${parsed.length} card${parsed.length!==1?"s":""}…` });
+    try {
+      const identifiers = parsed.map(p => p.set && p.num
+        ? { name:p.name, set:p.set.toLowerCase(), collector_number:p.num }
+        : { name:p.name }
+      );
+      // Batch in groups of 75
+      const found = [];
+      for (let i=0; i<identifiers.length; i+=75) {
+        const resp = await fetch("https://api.scryfall.com/cards/collection", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ identifiers:identifiers.slice(i,i+75) }),
+        });
+        const d = await resp.json();
+        found.push(...(d.data||[]));
+        if (i+75 < identifiers.length) await new Promise(r=>setTimeout(r,120));
+      }
+      const byName = {};
+      for (const c of found) byName[c.name.toLowerCase()] = c;
+
+      const cards = [];
+      for (let i=0; i<parsed.length; i++) {
+        const p = parsed[i];
+        const sf = byName[p.name.toLowerCase()];
+        const id = `c_${Date.now()}_${i}_${Math.random().toString(36).slice(2,5)}`;
+        cards.push({ id, qty:p.qty, name:sf?sf.name:p.name, set:sf?sf.set.toUpperCase():(p.set||"???"), num:sf?sf.collector_number:(p.num||""), acquired:false, priority:null, notes:"", price:"", custom:true });
+        if (sf) onStoreMeta(id, { price:sf.prices?.usd??null, mana:sf.mana_cost||sf.card_faces?.[0]?.mana_cost||"", colors:{ colors:sf.colors||sf.card_faces?.[0]?.colors||[], typeLine:sf.type_line||"" } });
+      }
+      const missing = parsed.length - Object.keys(byName).length;
+      onAdd(cards);
+      setBulkStatus({ ok:true, msg:`✓ Added ${cards.length} card${cards.length!==1?"s":""}${missing>0?` — ${missing} not found on Scryfall (added without metadata)`:""}`  });
+      setBulkText("");
+    } catch(e) { setBulkStatus({ err:true, msg:e.message }); }
+    setLoadingBulk(false);
+  };
+
+  // ── Render ────────────────────────────────────────────────
+  return React.createElement("div", { className:"add-panel" },
+    React.createElement("div", { className:"add-panel-tabs" },
+      React.createElement("button",{className:`add-tab${tab==="search"?" active":""}`,onClick:()=>setTab("search")},"🔍  search by name"),
+      React.createElement("button",{className:`add-tab${tab==="bulk"?" active":""}`,onClick:()=>setTab("bulk")},"📋  bulk paste"),
+    ),
+    React.createElement("div", { className:"add-panel-body" },
+      tab==="search"
+        ? React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+            // Autocomplete input
+            React.createElement("div",{className:"ac-wrap",ref:wrapRef},
+              React.createElement("input",{type:"text",placeholder:"type a card name…",value:query,onChange:handleQuery,onKeyDown:handleKeyDown,
+                style:{width:"100%"},autoComplete:"off"}),
+              showSugg&&suggestions.length>0&&React.createElement("div",{className:"ac-suggestions"},
+                suggestions.map((s,i)=>React.createElement("div",{key:s,className:`ac-item${i===hiIdx?" hi":""}`,
+                  onMouseDown:e=>{e.preventDefault();selectName(s);}},s))
+              ),
+              loadingSugg&&React.createElement("div",{style:{fontSize:11,color:"var(--text3)",marginTop:4}},"searching…"),
+            ),
+            // Printings list
+            selectedName&&React.createElement("div",null,
+              React.createElement("div",{style:{fontSize:11,color:"var(--text3)",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}},
+                loadingPrint?"loading printings…":`${printings.length} printing${printings.length!==1?"s":""} — click to select`
+              ),
+              !loadingPrint&&printings.length>0&&React.createElement("div",{className:"printings-wrap"},
+                printings.map(p=>React.createElement("div",{key:`${p.set}-${p.collector_number}`,
+                  className:`printing-row${selectedPrint===p?" sel":""}`,
+                  onClick:()=>setSelectedPrint(p),},
+                  React.createElement("span",{className:"pr-set"},p.set.toUpperCase()),
+                  React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:1}},
+                    React.createElement("span",{className:"pr-name"},p.set_name),
+                    React.createElement("div",null, p.mana_cost&&React.createElement(ManaCost,{cost:p.mana_cost||p.card_faces?.[0]?.mana_cost||""})),
+                  ),
+                  React.createElement("span",{className:"pr-num"},`#${p.collector_number}`),
+                  React.createElement("span",{className:"pr-date"},(p.released_at||"").slice(0,4)),
+                  React.createElement("span",{className:"pr-price"},p.prices?.usd?`$${parseFloat(p.prices.usd).toFixed(2)}`:"—"),
+                ))
+              ),
+            ),
+            // Qty + add button
+            selectedPrint&&React.createElement("div",{className:"add-row"},
+              React.createElement("label",{style:{fontSize:12,color:"var(--text3)"}},"qty:"),
+              React.createElement("input",{type:"number",min:1,max:99,value:qty,onChange:e=>setQty(e.target.value),className:"qty-input"}),
+              React.createElement("button",{className:"add-confirm-btn",onClick:handleAdd},`+ add to list`),
+            ),
+            addStatus&&React.createElement("div",{className:`add-status${addStatus.ok?" ok":" err"}`},addStatus.msg),
+          )
+        : React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:8}},
+            React.createElement("div",{className:"bulk-hint"},
+              "one card per line \u2014 format: \u00a01 Card Name (SET) NUM\u00a0 or just\u00a0 1 Card Name"
+            ),
+            React.createElement("textarea",{className:"bulk-textarea",value:bulkText,onChange:e=>setBulkText(e.target.value),
+              placeholder:"1 Lightning Bolt (M10) 146\n2 Sol Ring (C21) 263\n1 Smothering Tithe"}),
+            React.createElement("div",{className:"add-row"},
+              React.createElement("button",{className:"add-confirm-btn",onClick:handleBulkAdd,disabled:loadingBulk||!bulkText.trim()},
+                loadingBulk?"adding…":"+ add cards"),
+              bulkStatus&&React.createElement("span",{className:`add-status${bulkStatus.ok?" ok":bulkStatus.err?" err":""}`},bulkStatus.msg),
+            ),
+          ),
+    ),
+  );
+}
+
+// ── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [cards,        setCards]        = useState(() => { const s=loadLS(SKEY); return s?applyData(s):INITIAL; });
+  const [customCards,  setCustomCards]  = useState(() => loadLS(CUSTOM_KEY)||[]);
+  const [sfPrices,     setSfPrices]     = useState(() => loadLS(SFKEY)||{});
+  const [manaCosts,    setManaCosts]    = useState(() => loadLS(MCKEY)||{});
+  const [cardColors,   setCardColors]   = useState(() => loadLS(CLKEY)||{});
+  const [removed,      setRemoved]      = useState(() => new Set(loadLS(RMKEY)||[]));
+  const [showRemoved,  setShowRemoved]  = useState(false);
+  const [showAddPanel, setShowAddPanel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [creds,        setCreds]        = useState(loadCreds);
+  const [syncStatus,   setSyncStatus]   = useState("offline");
+  const syncDebounce   = useRef(null);
+  const [sfStatus,     setSfStatus]     = useState(null);
+  const [filter,       setFilter]       = useState("all");
+  const [sort,         setSort]         = useState("default");
+  const [search,       setSearch]       = useState("");
+  const [openNotes,    setOpenNotes]    = useState(new Set());
+  const [priorityFilter, setPriorityFilter] = useState(new Set());
+  const [colorFilter,    setColorFilter]    = useState(new Set());
+  const [collapsed,      setCollapsed]      = useState(new Set());
+
+  const persist = useCallback(next => {
+    const data = {};
+    next.forEach(c => { data[c.id] = { acquired:c.acquired, priority:c.priority, notes:c.notes, price:c.price }; });
+    saveLS(SKEY, data);
+  }, []);
+  const update = useCallback((id, patch) => {
+    setCards(prev => {
+      if (!prev.some(c=>c.id===id)) return prev;
+      const next=prev.map(c=>c.id===id?{...c,...patch}:c); persist(next); return next;
+    });
+    setCustomCards(prev => {
+      if (!prev.some(c=>c.id===id)) return prev;
+      const next=prev.map(c=>c.id===id?{...c,...patch}:c); saveLS(CUSTOM_KEY,next); return next;
+    });
+  }, [persist]);
+
+  const addCards = useCallback(newCards => {
+    setCustomCards(prev => { const next=[...prev,...newCards]; saveLS(CUSTOM_KEY,next); return next; });
+  }, []);
+  const storeMeta = useCallback((id, meta) => {
+    if (meta.price  !==undefined) setSfPrices(prev   => { const n={...prev,[id]:meta.price};  saveLS(SFKEY,n); return n; });
+    if (meta.mana   !==undefined) setManaCosts(prev   => { const n={...prev,[id]:meta.mana};   saveLS(MCKEY,n); return n; });
+    if (meta.colors !==undefined) setCardColors(prev  => { const n={...prev,[id]:meta.colors}; saveLS(CLKEY,n); return n; });
+  }, []);
+
+  // ── Cloud sync helpers ─────────────────────────────────────────────────────
+  const buildPayload = useCallback(() => ({
+    userCards:   (() => { const d={}; cards.forEach(c=>{ d[c.id]={acquired:c.acquired,priority:c.priority,notes:c.notes,price:c.price}; }); return d; })(),
+    customCards, removed:[...removed],
+    sfPrices, manaCosts, cardColors,
+  }), [cards, customCards, removed, sfPrices, manaCosts, cardColors]);
+
+  const pushToCloud = useCallback(async (payload, cr) => {
+    if (!cr.apiKey||!cr.binId) return;
+    setSyncStatus("saving");
+    try {
+      await jbWrite(cr.apiKey, cr.binId, payload);
+      setSyncStatus("synced");
+    } catch { setSyncStatus("error"); }
+  }, []);
+
+  const debouncedSync = useCallback((payload, cr) => {
+    clearTimeout(syncDebounce.current);
+    setSyncStatus("saving");
+    syncDebounce.current = setTimeout(() => pushToCloud(payload, cr), 600);
+  }, [pushToCloud]);
+
+  // Load from cloud on mount if creds present
+  useEffect(() => {
+    const cr = loadCreds();
+    if (!cr.apiKey || !cr.binId) return;
+    (async () => {
+      setSyncStatus("saving");
+      try {
+        const rec = await jbRead(cr.apiKey, cr.binId);
+        if (!rec || rec._init) { setSyncStatus("synced"); return; }
+        if (rec.userCards) {
+          setCards(applyData(rec.userCards));
+          saveLS(SKEY, rec.userCards);
+        }
+        if (rec.customCards) { setCustomCards(rec.customCards); saveLS(CUSTOM_KEY, rec.customCards); }
+        if (rec.removed)     { setRemoved(new Set(rec.removed)); saveLS(RMKEY, rec.removed); }
+        if (rec.sfPrices)    { setSfPrices(rec.sfPrices);   saveLS(SFKEY, rec.sfPrices); }
+        if (rec.manaCosts)   { setManaCosts(rec.manaCosts); saveLS(MCKEY, rec.manaCosts); }
+        if (rec.cardColors)  { setCardColors(rec.cardColors); saveLS(CLKEY, rec.cardColors); }
+        setSyncStatus("synced");
+      } catch { setSyncStatus("error"); }
+    })();
+  }, []); // eslint-disable-line
+
+  // Auto-sync on any meaningful state change
+  useEffect(() => {
+    const cr = loadCreds();
+    if (!cr.apiKey || !cr.binId) return;
+    debouncedSync(buildPayload(), cr);
+  }, [cards, customCards, removed, sfPrices, manaCosts, cardColors]); // eslint-disable-line
+  const toggleNotes          = id => setOpenNotes(prev => { const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; });
+  const togglePriorityFilter = p  => setPriorityFilter(prev => { const n=new Set(prev); n.has(p)?n.delete(p):n.add(p); return n; });
+  const toggleColorFilter    = c  => setColorFilter(prev => { const n=new Set(prev); n.has(c)?n.delete(c):n.add(c); return n; });
+  const toggleCollapsed      = g  => setCollapsed(prev => { const n=new Set(prev); n.has(g)?n.delete(g):n.add(g); return n; });
+  const removeCard  = id => setRemoved(prev => { const n=new Set(prev); n.add(id); saveLS(RMKEY,[...n]); return n; });
+  const restoreCard = id => setRemoved(prev => { const n=new Set(prev); n.delete(id); saveLS(RMKEY,[...n]); return n; });
+
+  const handleFetch = async () => {
+    setSfStatus("loading");
+    try {
+      const { priceById, manaById, colorsById } = await fetchScryfall(INITIAL);
+      setSfPrices(priceById); setManaCosts(manaById); setCardColors(colorsById);
+      saveLS(SFKEY, priceById); saveLS(MCKEY, manaById); saveLS(CLKEY, colorsById);
+      const found   = Object.values(priceById).filter(v=>v!==null&&v!=="N/A").length;
+      const missing = Object.values(priceById).filter(v=>v===null||v==="N/A").length;
+      setSfStatus({ ok:true, text:`${found} prices fetched${missing?`, ${missing} not found`:""}` });
+    } catch(e) { setSfStatus({ err:true, text:e.message }); }
+  };
+
+  const hasSF = Object.keys(sfPrices).length>0 && Object.values(sfPrices).some(v=>v!==null&&v!=="N/A");
+  const hasColors = Object.keys(cardColors).length > 0;
+
+  // helper accessors
+  const po  = c => (parseFloat(c.price)||0)*c.qty;
+  const spo = c => (parseFloat(sfPrices[c.id])||0)*c.qty;
+  const catOf = c => { const cl=cardColors[c.id]||{}; return getCategory(cl.colors, cl.typeLine); };
+
+  // ── filter + sort ──────────────────────────────────────────────────────────
+  const allCards   = [...cards, ...customCards];
+  const activeCards = allCards.filter(c => !removed.has(c.id));
+  let list = activeCards;
+  if (search.trim()) {
+    const q = search.toLowerCase();
+    list = list.filter(c => c.name.toLowerCase().includes(q)||c.set.toLowerCase().includes(q)||c.notes.toLowerCase().includes(q));
+  }
+  if (filter==="pending")  list = list.filter(c => !c.acquired);
+  if (filter==="acquired") list = list.filter(c =>  c.acquired);
+  if (filter==="priority") list = list.filter(c => !c.acquired && c.priority!==null);
+  if (priorityFilter.size>0) list = list.filter(c => !c.acquired && priorityFilter.has(c.priority));
+  if (colorFilter.size>0)    list = list.filter(c => colorFilter.has(catOf(c)));
+
+  if (sort==="priority") list = [...list].sort((a,b)=>(a.priority??99)-(b.priority??99));
+  if (sort==="name")     list = [...list].sort((a,b)=>a.name.localeCompare(b.name));
+  if (sort==="set")      list = [...list].sort((a,b)=>a.set.localeCompare(b.set));
+  if (sort==="price")    list = [...list].sort((a,b)=>spo(b)-spo(a)||po(b)-po(a));
+  if (sort==="scryfall") list = [...list].sort((a,b)=>spo(b)-spo(a));
+  if (sort==="color")    list = [...list].sort((a,b)=>CAT_ORDER.indexOf(catOf(a))-CAT_ORDER.indexOf(catOf(b)));
+
+  // ── totals ─────────────────────────────────────────────────────────────────
+  const total=activeCards.length, acquired=activeCards.filter(c=>c.acquired).length;
+  const totalQty=activeCards.reduce((s,c)=>s+c.qty,0), acquiredQty=activeCards.filter(c=>c.acquired).reduce((s,c)=>s+c.qty,0);
+  const hasPriority=activeCards.filter(c=>!c.acquired&&c.priority!==null).length;
+  const pct=Math.round((acquiredQty/totalQty)*100)||0;
+  const anyPrice=activeCards.some(c=>c.price!=="");
+
+  const mAll=activeCards.reduce((s,c)=>s+po(c),0);
+  const mAcq=activeCards.filter(c=>c.acquired).reduce((s,c)=>s+po(c),0);
+  const mPend=activeCards.filter(c=>!c.acquired).reduce((s,c)=>s+po(c),0);
+  const mVis=list.reduce((s,c)=>s+po(c),0);
+  const sfAll=activeCards.reduce((s,c)=>s+spo(c),0);
+  const sfAcq=activeCards.filter(c=>c.acquired).reduce((s,c)=>s+spo(c),0);
+  const sfPend=activeCards.filter(c=>!c.acquired).reduce((s,c)=>s+spo(c),0);
+  const sfVis=list.reduce((s,c)=>s+spo(c),0);
+
+  const pfCards = priorityFilter.size>0 ? activeCards.filter(c=>!c.acquired&&priorityFilter.has(c.priority)) : [];
+  const pfManu  = pfCards.reduce((s,c)=>s+po(c),0);
+  const pfSf    = pfCards.reduce((s,c)=>s+spo(c),0);
+  const removedCards = allCards.filter(c => removed.has(c.id));
+
+  const isLoading=sfStatus==="loading";
+  const sfDone=sfStatus&&sfStatus!=="loading";
+  const selStyle={ fontSize:13, padding:"6px 8px" };
+
+  // ── build rows (flat or grouped) ───────────────────────────────────────────
+  const buildRows = () => {
+    if (sort !== "color") {
+      return list.map((card,idx) => React.createElement(CardRow,{
+        key:card.id, card, isLast:idx===list.length-1,
+        notesOpen:openNotes.has(card.id), searchTerm:search.trim().toLowerCase(),
+        sfPrice:Object.prototype.hasOwnProperty.call(sfPrices,card.id)?sfPrices[card.id]:undefined,
+        manaCost:manaCosts[card.id]||"", catInfo:CAT[catOf(card)]||null,
+        onAcquire:()=>update(card.id,{acquired:!card.acquired}),
+        onPriority:p=>update(card.id,{priority:card.priority===p?null:p}),
+        onNotes:v=>update(card.id,{notes:v}), onPrice:v=>update(card.id,{price:v}),
+        onToggleNotes:()=>toggleNotes(card.id),
+        onRemove:()=>removeCard(card.id),
+      }));
+    }
+
+    // Group by category
+    const groups = {};
+    for (const c of list) {
+      const cat = catOf(c);
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(c);
+    }
+    const elements = [];
+    for (const catKey of CAT_ORDER) {
+      const group = groups[catKey];
+      if (!group || group.length===0) continue;
+      const cfg   = CAT[catKey] || {};
+      const isCol = collapsed.has(catKey);
+      const gManu = group.reduce((s,c)=>s+po(c),0);
+      const gSf   = group.reduce((s,c)=>s+spo(c),0);
+
+      elements.push(React.createElement("div",{
+        key:`hdr-${catKey}`, className:"group-header",
+        onClick:()=>toggleCollapsed(catKey),
+      },
+        React.createElement("div",{className:"group-dot",style:{background:cfg.dot||"#aaa",borderColor:cfg.border||"#aaa"}}),
+        React.createElement("span",{className:"group-title"},cfg.label||catKey),
+        React.createElement("span",{className:"group-meta"},`${group.length} card${group.length!==1?"s":""}`),
+        React.createElement("div",{className:"group-totals"},
+          hasSF&&gSf>0&&React.createElement("span",{className:"sf"},fmt(gSf)),
+          anyPrice&&gManu>0&&React.createElement("span",null,fmt(gManu)),
+        ),
+        React.createElement("span",{className:`group-chevron${isCol?"":" open"}`},"›"),
+      ));
+
+      if (!isCol) {
+        group.forEach((card,idx) => elements.push(React.createElement(CardRow,{
+          key:card.id, card, isLast:idx===group.length-1,
+          notesOpen:openNotes.has(card.id), searchTerm:search.trim().toLowerCase(),
+          sfPrice:Object.prototype.hasOwnProperty.call(sfPrices,card.id)?sfPrices[card.id]:undefined,
+          manaCost:manaCosts[card.id]||"", catInfo:cfg,
+          onAcquire:()=>update(card.id,{acquired:!card.acquired}),
+          onPriority:p=>update(card.id,{priority:card.priority===p?null:p}),
+          onNotes:v=>update(card.id,{notes:v}), onPrice:v=>update(card.id,{price:v}),
+          onToggleNotes:()=>toggleNotes(card.id),
+          onRemove:()=>removeCard(card.id),
+        })));
+      }
+    }
+    return elements;
+  };
+
+  return React.createElement("div", null,
+    // Header bar
+    React.createElement("div",{className:"header-bar"},
+      React.createElement("h1", null, "Mythic Games Colorado \u2014 Littleton Buylist"),
+      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
+        creds.binId&&React.createElement("div",{
+          className:`sync-pill ${syncStatus}`,
+          title: syncStatus==="error"?"Sync error — click ⚙ to check settings":syncStatus==="saving"?"Saving to cloud…":syncStatus==="synced"?"All changes saved to cloud":"Cloud sync not configured",
+        },
+          React.createElement("div",{className:`sync-dot${syncStatus==="saving"?" pulse":""}`}),
+          syncStatus==="saving"?"saving…":syncStatus==="synced"?"synced":syncStatus==="error"?"sync error":"offline",
+        ),
+        React.createElement("button",{className:"settings-btn",onClick:()=>setShowSettings(v=>!v),title:"Cloud sync settings"},"\u2699\ufe0f"),
+      ),
+    ),
+
+    // Settings panel
+    showSettings&&React.createElement(SettingsPanel,{onCredsChange:cr=>{setCreds(cr);}}),
+
+    // Stats
+    React.createElement("div",{className:"stat-grid"},
+      ...[
+        { label:"acquired", val:`${acquiredQty} / ${totalQty}`, sub:"copies", col:acquiredQty===totalQty?"var(--green)":"var(--text)" },
+        { label:"progress", val:`${pct}%`, sub:`${acquired} of ${total} cards` },
+        { label:"prioritized", val:hasPriority, sub:"cards flagged", col:hasPriority>0?"var(--amber)":"var(--text)" },
+      ].map(s=>React.createElement("div",{key:s.label,className:"stat"},
+        React.createElement("div",{className:"stat-label"},s.label),
+        React.createElement("div",{className:"stat-val",style:{color:s.col||"var(--text)"}},s.val),
+        React.createElement("div",{className:"stat-sub"},s.sub),
+      ))
+    ),
+    React.createElement("div",{className:"progress-bar"},React.createElement("div",{className:"progress-fill",style:{width:`${pct}%`}})),
+
+    // Controls row 1: search, status filter, sort, fetch, export
+    React.createElement("div",{className:"controls"},
+      React.createElement("input",{type:"text",placeholder:"search name, set, or notes...",value:search,onChange:e=>setSearch(e.target.value)}),
+      React.createElement("select",{value:filter,onChange:e=>setFilter(e.target.value),style:selStyle},
+        React.createElement("option",{value:"all"},"all cards"),
+        React.createElement("option",{value:"pending"},"pending"),
+        React.createElement("option",{value:"acquired"},"acquired"),
+        React.createElement("option",{value:"priority"},"prioritized only"),
+      ),
+      React.createElement("select",{value:sort,onChange:e=>setSort(e.target.value),style:selStyle},
+        React.createElement("option",{value:"default"},"original order"),
+        React.createElement("option",{value:"priority"},"by priority"),
+        React.createElement("option",{value:"name"},"by name A\u2013Z"),
+        React.createElement("option",{value:"set"},"by set code"),
+        React.createElement("option",{value:"price"},"by my price \u2193"),
+        React.createElement("option",{value:"scryfall"},"by scryfall \u2193"),
+        React.createElement("option",{value:"color"},"group by color/type"),
+      ),
+      React.createElement("button",{className:"fetch-btn",onClick:handleFetch,disabled:isLoading},
+        isLoading?"fetching\u2026":hasSF?"refresh scryfall":"fetch scryfall prices"
+      ),
+      sfDone&&React.createElement("span",{className:`fetch-status ${sfStatus.err?"err":"ok"}`},
+        sfStatus.err?"\u26a0 "+sfStatus.text:"\u2713 "+sfStatus.text
+      ),
+      React.createElement("button",{className:"export-btn",onClick:()=>exportCSV(list,sfPrices,manaCosts,cardColors)},
+        "\u2193 export csv"
+      ),
+      React.createElement("button",{className:`graveyard-btn${showRemoved?" active":""}`,
+        onClick:()=>setShowRemoved(v=>!v),
+      }, `\u26b0 graveyard (${removedCards.length})`),
+      React.createElement("button",{className:`add-panel-toggle${showAddPanel?" open":""}`,
+        onClick:()=>setShowAddPanel(v=>!v),
+      }, showAddPanel?"✕ close":"+ add card"),
+    ),
+
+    // Controls row 2: priority filter + color filter
+    React.createElement("div",{className:"controls2"},
+      // Priority toggles
+      React.createElement("div",{className:"filter-group"},
+        React.createElement("span",{className:"filter-group-label"},"priority:"),
+        ...[1,2,3,4,5].map(p=>{
+          const active=priorityFilter.has(p);
+          return React.createElement("button",{key:p,className:"fg-btn",onClick:()=>togglePriorityFilter(p),title:P_NAMES[p],
+            style:{background:active?P_COLORS[p]:"transparent",color:active?"#fff":"var(--text3)",borderColor:active?P_COLORS[p]:"var(--border2)"}},`P${p}`);
+        }),
+        priorityFilter.size>0&&React.createElement("button",{className:"fg-clear",onClick:()=>setPriorityFilter(new Set())},"\u00d7"),
+      ),
+      // Color/type toggles (only shown after fetch)
+      React.createElement("div",{className:"filter-group"},
+        React.createElement("span",{className:"filter-group-label"},"color/type:"),
+        ...COLOR_FILTERS.map(cat=>{
+          const cfg=CAT[cat]; const active=colorFilter.has(cat);
+          return React.createElement("button",{key:cat,className:"fg-btn",onClick:()=>toggleColorFilter(cat),
+            title:cfg.label,
+            style:{background:active?cfg.btnBg:"transparent",color:active?cfg.btnText:"var(--text3)",
+              borderColor:active?cfg.btnBg:"var(--border2)",opacity:hasColors||active?1:0.4}},
+            COLOR_FILTER_LABELS[cat]
+          );
+        }),
+        colorFilter.size>0&&React.createElement("button",{className:"fg-clear",onClick:()=>setColorFilter(new Set())},"\u00d7"),
+      ),
+    ),
+
+    // Add card panel
+    showAddPanel&&React.createElement(AddPanel, { onAdd:addCards, onStoreMeta:storeMeta }),
+
+    // Table
+    React.createElement("div",{className:"table-wrap"},
+      React.createElement("div",{className:"table-head"},
+        React.createElement("span"),
+        React.createElement("span"),
+        React.createElement("span",{className:"th"},"card name"),
+        React.createElement("span",{className:"th right purple"},"scryfall"),
+        React.createElement("span",{className:"th right"},"price ea."),
+        React.createElement("span",{className:"th right"},"set"),
+        React.createElement("span",{className:"th right",style:{minWidth:118}},"priority"),
+      ),
+      list.length===0
+        ? React.createElement("div",{className:"no-match"},"no cards match")
+        : buildRows(),
+
+      // Footer totals
+      (anyPrice||hasSF)&&React.createElement("div",{className:"footer-totals"},
+        // Priority selection row
+        priorityFilter.size>0&&React.createElement("div",{className:"footer-row footer-row-hi"},
+          React.createElement("div",{className:"footer-left"},
+            React.createElement("span",{className:"footer-section"},"P"+[...priorityFilter].sort().join("+P")+" selection"),
+            React.createElement("div",{style:{display:"flex",gap:4,alignItems:"center"}},
+              ...[...priorityFilter].sort().map(p=>React.createElement("span",{key:p,style:{fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:4,background:P_COLORS[p],color:"#fff"}},`P${p}`))
+            ),
+            pfCards.length>0&&React.createElement("span",{className:"footer-kv"},React.createElement("span",{className:"lbl"},"cards:"),React.createElement("span",{className:"val"},pfCards.length)),
+            hasSF&&pfSf>0&&React.createElement("span",{className:"footer-kv"},React.createElement("span",{className:"lbl"},"scryfall:"),React.createElement("span",{className:"val purple"},fmt(pfSf))),
+          ),
+          anyPrice&&React.createElement("div",{className:"footer-right"},
+            React.createElement("span",{className:"footer-total-lbl"},"selection total:"),
+            React.createElement("span",{className:"footer-total-val"},fmt(pfManu)),
+          ),
+        ),
+        // Scryfall totals
+        hasSF&&React.createElement("div",{className:"footer-row"},
+          React.createElement("div",{className:"footer-left"},
+            React.createElement("span",{className:"footer-section purple"},"scryfall"),
+            sfPend>0&&React.createElement("span",{className:"footer-kv"},React.createElement("span",{className:"lbl"},"pending:"),React.createElement("span",{className:"val purple"},fmt(sfPend))),
+            sfAcq>0&&React.createElement("span",{className:"footer-kv"},React.createElement("span",{className:"lbl"},"acquired:"),React.createElement("span",{className:"val purple"},fmt(sfAcq))),
+          ),
+          React.createElement("div",{className:"footer-right"},
+            React.createElement("span",{className:"footer-total-lbl"},filter!=="all"?`${filter} view:`:"total:"),
+            React.createElement("span",{className:"footer-total-val purple"},fmt(filter==="all"?sfAll:sfVis)),
+          ),
+        ),
+        // Manual price totals
+        anyPrice&&React.createElement("div",{className:"footer-row"},
+          React.createElement("div",{className:"footer-left"},
+            React.createElement("span",{className:"footer-section"},"my prices"),
+            mPend>0&&React.createElement("span",{className:"footer-kv"},React.createElement("span",{className:"lbl"},"pending:"),React.createElement("span",{className:"val"},fmt(mPend))),
+            mAcq>0&&React.createElement("span",{className:"footer-kv"},React.createElement("span",{className:"lbl"},"acquired:"),React.createElement("span",{className:"val green"},fmt(mAcq))),
+          ),
+          React.createElement("div",{className:"footer-right"},
+            React.createElement("span",{className:"footer-total-lbl"},filter!=="all"?`${filter} view:`:"total:"),
+            React.createElement("span",{className:"footer-total-val"},fmt(filter==="all"?mAll:mVis)),
+          ),
+        ),
+      ),
+    ),
+
+    React.createElement("div",{className:"meta"},
+      `showing ${list.length} of ${total} cards \u2014 saved to localStorage`+(hasSF?" \u2014 scryfall data cached":"")
+    ),
+
+    // Graveyard
+    showRemoved&&removedCards.length>0&&React.createElement("div",{className:"graveyard-section"},
+      React.createElement("div",{className:"graveyard-header"},
+        React.createElement("span",null,"\u26b0"),
+        React.createElement("span",{className:"graveyard-title"},"The Graveyard"),
+        React.createElement("span",{className:"graveyard-sub"},`${removedCards.length} card${removedCards.length!==1?"s":""} \u2014 return to hand to restore`),
+      ),
+      ...removedCards.map(card=>{
+        const cl=cardColors[card.id]||{};
+        const cfg=CAT[getCategory(cl.colors,cl.typeLine)]||{};
+        return React.createElement("div",{key:card.id,className:"graveyard-row"},
+          React.createElement("div",{className:"color-dot",style:{background:cfg.dot||"#4a3a3a",borderColor:cfg.border||"#4a3a3a",opacity:0.5}}),
+          React.createElement("span",{className:"graveyard-name"},card.name),
+          React.createElement("span",{className:"graveyard-set"},`${card.set} ${card.num}`),
+          React.createElement("button",{className:"graveyard-restore",onClick:()=>restoreCard(card.id)},"return to hand"),
+        );
+      }),
+    ),
+  );
+}
+
+// ── CardRow ───────────────────────────────────────────────────────────────────
+function CardRow({ card, isLast, notesOpen, searchTerm, sfPrice, manaCost, catInfo, onAcquire, onPriority, onNotes, onPrice, onToggleNotes, onRemove }) {
+  const [editing, setEditing] = useState(false);
+  const [draft,   setDraft]   = useState("");
+  const [armed,   setArmed]   = useState(false);
+  const inputRef = useRef(null);
+  const armTimer = useRef(null);
+
+  const startEdit  = () => { setDraft(card.price); setEditing(true); setTimeout(()=>inputRef.current&&inputRef.current.select(),10); };
+  const commitEdit = () => { const raw=draft.replace(/[$,\s]/g,""); const n=parseFloat(raw); onPrice(isNaN(n)?"":n.toFixed(2)); setEditing(false); };
+  const handleKey  = e => { if(e.key==="Enter")commitEdit(); if(e.key==="Escape")setEditing(false); };
+
+  const handleGraveyard = () => {
+    if (!armed) {
+      setArmed(true);
+      armTimer.current = setTimeout(() => setArmed(false), 2500);
+    } else {
+      clearTimeout(armTimer.current);
+      onRemove();
+    }
+  };
+
+  const priceDisplay = card.price!==""?fmt(parseFloat(card.price)):"";
+  const lineTotal    = card.qty>1&&card.price!==""?fmt(parseFloat(card.price)*card.qty):null;
+  const notesMatch   = searchTerm&&card.notes.toLowerCase().includes(searchTerm);
+  const notePreview  = card.notes.slice(0,36)+(card.notes.length>36?"...":"");
+
+  const sfUndef  = sfPrice===undefined;
+  const sfNA     = sfPrice==="N/A"||sfPrice===null;
+  const sfNum    = (!sfUndef&&!sfNA)?parseFloat(sfPrice):null;
+  const sfDisplay= sfUndef?null:sfNA?"N/A":fmt(sfNum);
+  const sfLineTot= sfNum!==null&&card.qty>1?fmt(sfNum*card.qty):null;
+
+  const dotStyle = catInfo
+    ? { background:catInfo.dot, borderColor:catInfo.border }
+    : { background:"var(--border2)", borderColor:"var(--border2)" };
+
+  return React.createElement("div",{className:"row"},
+    React.createElement("div",{className:`row-main${card.acquired?" acquired":""}`},
+      // checkbox
+      React.createElement("input",{type:"checkbox",checked:card.acquired,onChange:onAcquire,style:{width:13,height:13,cursor:"pointer",accentColor:"var(--green)"}}),
+      // color dot
+      React.createElement("div",{className:"color-dot",style:dotStyle,title:catInfo?.label||"unknown"}),
+      // name cell
+      React.createElement("div",{className:"card-name-cell"},
+        React.createElement("div",{className:"card-name-line"},
+          card.qty>1&&React.createElement("span",{className:"qty-badge"},`x${card.qty}`),
+          React.createElement("span",{className:`card-name-text${card.acquired?" struck":""}`,style:{fontWeight:card.priority===1?500:400}},card.name),
+          card.custom&&React.createElement("span",{className:"custom-badge",title:"custom card"},"custom"),
+          manaCost&&React.createElement(ManaCost,{cost:manaCost}),
+          card.notes&&!notesOpen&&React.createElement("span",{className:`note-preview${notesMatch?" match":""}`},`\u2014 ${notePreview}`),
+        ),
+      ),
+      // scryfall price
+      React.createElement("div",{className:"sf-cell"},
+        sfDisplay===null
+          ? React.createElement("span",{className:"sf-val empty"},"\u2014")
+          : React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:1}},
+              React.createElement("span",{className:`sf-val${sfNA?" na":""}`},sfDisplay),
+              sfLineTot&&React.createElement("span",{className:"sf-sub"},`${sfLineTot} total`),
+            )
+      ),
+      // manual price
+      React.createElement("div",{className:"price-cell"},
+        editing
+          ? React.createElement("input",{ref:inputRef,type:"text",value:draft,onChange:e=>setDraft(e.target.value),onBlur:commitEdit,onKeyDown:handleKey,className:"price-input"})
+          : React.createElement("div",{onClick:startEdit,title:"click to enter price",className:"price-display"},
+              React.createElement("span",{className:`price-val${card.price===""?" empty":""}`},card.price!==""?priceDisplay:"$\u2014\u2014"),
+              lineTotal&&React.createElement("span",{className:"price-sub"},`${lineTotal} total`),
+            )
+      ),
+      // set + note btn
+      React.createElement("div",{className:"set-meta"},
+        React.createElement("button",{className:`note-btn${card.notes?" has-note":""}${notesOpen?" open-state":""}`,onClick:onToggleNotes},
+          notesOpen?"close":card.notes?"note":"+ note"
+        ),
+        React.createElement("span",{className:"set-code"},`${card.set} ${card.num}`),
+      ),
+      // priority buttons + graveyard button
+      React.createElement("div",{className:"priority-btns"},
+        ...[1,2,3,4,5].map(p=>{
+          const active=card.priority===p;
+          return React.createElement("button",{key:p,className:"pbtn",onClick:()=>onPriority(p),title:P_NAMES[p],
+            style:{background:active?P_COLORS[p]:"transparent",color:active?"#fff":"var(--text3)",
+              border:`0.5px solid ${active?"transparent":"var(--border2)"}`,transition:"background 0.1s,color 0.1s"}},`P${p}`);
+        }),
+        React.createElement("button",{
+          className:`remove-btn${armed?" armed":""}`,
+          onClick:handleGraveyard,
+          title:armed?"click again to send to graveyard":"send to graveyard",
+        }, armed?"\u26b0?":"\u26b0"),
+      ),
+    ),
+    notesOpen&&React.createElement("div",{className:"notes-area"},
+      React.createElement("textarea",{value:card.notes,onChange:e=>onNotes(e.target.value),placeholder:"price, condition, source, etc.",rows:2})
+    ),
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
